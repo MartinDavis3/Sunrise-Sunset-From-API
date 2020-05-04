@@ -64,27 +64,26 @@ $dataReady = FALSE;
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Sunrise and Sunset</title>
 </head>
-<body>
-  <h1>Sunrise and Sunset</h1>
-  <p>Enter the continent and city,</p>
-  <p>(Continents: Africa, America, Asia, Australia, Europe.)</p>
-  <p>Use underscore instead of space.</p>
-  <form action="./index.php" method="GET">
-    <input type="submit" name="reset" value="Reset">
-        <label for="continent">
-          Continent:
-          <input type="text" name="continent" id="continent">
-        </label>
-        <label>
-        <label for="city">
-          City:
-          <input type="text" name="city" id="city">
-        </label>
-        </label>
-          <input type="submit" name ="show-times" value="Show Times">
-        </label>
-      </form>
-      <p><?php
+  <body>
+    <h1>Sunrise and Sunset</h1>
+    <p>Enter the continent and city,</p>
+    <p>(Continents: Africa, America, Asia, Australia, Europe.)</p>
+    <p>Use underscore instead of space.</p>
+    <form action="./index.php" method="GET">
+      <label for="continent">
+        Continent:
+        <input type="text" name="continent" id="continent">
+      </label>
+      <label>
+      <label for="city">
+        City:
+        <input type="text" name="city" id="city">
+      </label>
+      </label>
+        <input type="submit" name ="show-times" value="Show Times">
+      </label>
+    </form>
+    <p><?php
       if( $dataReady )
       {
         if( !$getTimeZoneFailed )
@@ -96,6 +95,6 @@ $dataReady = FALSE;
           echo 'Continent / City pair not found. Please try again.';
         }
       }
-      ?>
-</body>
+    ?>
+  </body>
 </html>
