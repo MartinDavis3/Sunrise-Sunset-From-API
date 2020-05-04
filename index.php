@@ -1,39 +1,27 @@
 <?php
-  if ( isset( $_GET['reset'] ) )
-  {
-    session_unset();
-    session_destroy();
-    session_start();
-  }
-
 include './includes/SunriseSunset.Class.php';
 
-// this is code that sets error reporting to cover all errors
-ini_set( 'display_errors', 1);
-ini_set( 'display_startup_errors', 1);
-error_reporting( E_ALL );
+$siteURL = 'https://api.sunrise-sunset.org/json';
+$continent = '';
+$city = '';
+$latitude = 0;
+$longitude = 0;
+$getTimeZoneFailed = FALSE;
+$dataReady = FALSE;
 
-  $siteURL = 'https://api.sunrise-sunset.org/json';
-  $continent = '';
-  $city = '';
-  $latitude = 0;
-  $longitude = 0;
-  $getTimeZoneFailed = FALSE;
-  $timeOffset = 0;
-
-  if ( isset( $_GET ) && !empty( $_GET ) )
+  if ( isset( $_GET['continent'] ) && !empty( $_GET['continent'] ) && isset( $_GET['city'] ) && !empty( $_GET['city'] ) )
   {
     $continent = $_GET['continent'];
     $city = $_GET['city'];
-    // $searchURL = $siteURL.'?lat='.$latitude.'&lng='.$longitude.'&formatted=0';
+    $dataReady = TRUE;
+    //The Continent / City pair entered may not exist in system database.
+    //Therefore need a try / catch block.
     try {
       $dateTime = new DateTime(null, new DateTimeZone($continent.'/'.$city));
-      $dateTimeUTC = new DateTime(null, new DateTimeZone('UTC'));
+      // $dateTimeUTC = new DateTime(null, new DateTimeZone('UTC'));
       $timeZone = $dateTime->getTimezone();
-      $timeOffset = $timeZone->getOffset($dateTimeUTC);
     } catch (Exception $e) {
       //Should really test exception type here - but outside the scope of current project
-      echo 'Continent / City pair not found. Please try again.';
       $getTimeZoneFailed = TRUE;
     }
 
@@ -44,11 +32,14 @@ error_reporting( E_ALL );
       $location = $timeZone->getLocation();
       $latitude = $location['latitude'];
       $longitude = $location['longitude'];
+      //Use search lat, long search function of API.
       $searchURL = $siteURL.'?lat='.$latitude.'&lng='.$longitude.'&formatted=0';
 
       $retrievedJSONString = file_get_contents( $searchURL );
       $retrievedObject = json_decode( $retrievedJSONString );
       $retrievedSunriseSunset = $retrievedObject->results;
+      //Create new object of SunriseSunset class from returned data
+      //and time zone found from system for city.
       $newSunriseSunset = new SunriseSunset(
         $retrievedSunriseSunset->sunrise,
         $retrievedSunriseSunset->sunset,
@@ -59,10 +50,9 @@ error_reporting( E_ALL );
         $retrievedSunriseSunset->nautical_twilight_begin,
         $retrievedSunriseSunset->nautical_twilight_end,
         $retrievedSunriseSunset->astronomical_twilight_begin,
-        $retrievedSunriseSunset->astronomical_twilight_end
+        $retrievedSunriseSunset->astronomical_twilight_end,
+        $timeZone
       );
-
-      // $sunriseDateTime = new DateTime($newSunriseSunset->sunrise);
     }
 
   }
@@ -76,6 +66,9 @@ error_reporting( E_ALL );
 </head>
 <body>
   <h1>Sunrise and Sunset</h1>
+  <p>Enter the continent and city,</p>
+  <p>(Continents: Africa, America, Asia, Australia, Europe.)</p>
+  <p>Use underscore instead of space.</p>
   <form action="./index.php" method="GET">
     <input type="submit" name="reset" value="Reset">
         <label for="continent">
@@ -92,18 +85,17 @@ error_reporting( E_ALL );
         </label>
       </form>
       <p><?php
-        if( isset( $timeZone ) )
+      if( $dataReady )
+      {
+        if( !$getTimeZoneFailed )
         {
-          echo $searchURL;
-          echo $timeZone->getName();
-          echo $timeOffset;
+          ?> <h2>Times for <?php echo $city ?></h2>
+          <?php
           echo $newSunriseSunset->output();
-          // echo date_format($newSunriseSunset->sunrise, 'H:i:s');
+        } else {
+          echo 'Continent / City pair not found. Please try again.';
         }
+      }
       ?>
-      <pre>
-        <?php var_dump( $timeZone ); ?>
-      </pre>
-
 </body>
 </html>

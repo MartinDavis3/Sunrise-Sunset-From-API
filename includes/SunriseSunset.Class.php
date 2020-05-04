@@ -10,6 +10,7 @@ class SunriseSunset {
   public $nautical_twilight_end = "0001-01-01T00:00:00+00:00";
   public $astronomical_twilight_begin = "0001-01-01T00:00:00+00:00";
   public $astronomical_twilight_end = "0001-01-01T00:00:00+00:00";
+  public $timeZone;
 
   function __construct(
     $sunrise = "0001-01-01T00:00:00+00:00",
@@ -21,7 +22,8 @@ class SunriseSunset {
     $nautical_twilight_begin = "0001-01-01T00:00:00+00:00",
     $nautical_twilight_end = "0001-01-01T00:00:00+00:00",
     $astronomical_twilight_begin = "0001-01-01T00:00:00+00:00",
-    $astronomical_twilight_end = "0001-01-01T00:00:00+00:00"
+    $astronomical_twilight_end = "0001-01-01T00:00:00+00:00",
+    $timeZone
   )
   {
     $this->sunrise = new DateTime($sunrise);
@@ -34,22 +36,32 @@ class SunriseSunset {
     $this->nautical_twilight_end = new DateTime($nautical_twilight_end);
     $this->astronomical_twilight_begin = new DateTime($astronomical_twilight_begin);
     $this->astronomical_twilight_end = new DateTime($astronomical_twilight_end);
-  }
+    $this->timeZone = $timeZone;
+    $this->sunrise->setTimezone($timeZone);
+    $this->sunset->setTimezone($timeZone);
+    $this->solar_noon->setTimezone($timeZone);
+    $this->civil_twilight_begin->setTimezone($timeZone);
+    $this->civil_twilight_end->setTimezone($timeZone);
+    $this->nautical_twilight_begin->setTimezone($timeZone);
+    $this->nautical_twilight_end->setTimezone($timeZone);
+    $this->astronomical_twilight_begin->setTimezone($timeZone);
+    $this->astronomical_twilight_end->setTimezone($timeZone);
+}
 
   public function output()
   {
     $output = '';
     ob_start();
     ?>
-    <p><?php echo date_format($this->sunrise, 'H:i:s'); ?></p>
-    <p><?php echo date_format($this->sunset, 'H:i:s'); ?></p>
-    <p><?php echo date_format($this->solar_noon, 'H:i:s'); ?></p>
-    <p><?php echo date_format($this->civil_twilight_begin, 'H:i:s'); ?></p>
-    <p><?php echo date_format($this->civil_twilight_end, 'H:i:s'); ?></p>
-    <p><?php echo date_format($this->nautical_twilight_begin, 'H:i:s'); ?></p>
-    <p><?php echo date_format($this->nautical_twilight_end, 'H:i:s'); ?></p>
-    <p><?php echo date_format($this->astronomical_twilight_begin, 'H:i:s'); ?></p>
-    <p><?php echo date_format($this->astronomical_twilight_end, 'H:i:s'); ?></p>
+    <p>Solar Noon: <?php echo date_format($this->solar_noon, 'H:i:s'); ?></p>
+    <p>Sunset: <?php echo date_format($this->sunset, 'H:i:s'); ?></p>
+    <p>Civil Twighlight Ends: <?php echo date_format($this->civil_twilight_end, 'H:i:s'); ?></p>
+    <p>Nautical Twilight Ends: <?php echo date_format($this->nautical_twilight_end, 'H:i:s'); ?></p>
+    <p>Astronomical Twilight Ends: <?php echo date_format($this->astronomical_twilight_end, 'H:i:s'); ?></p>
+    <p>Astronomical Twilight Begins: <?php echo date_format($this->astronomical_twilight_begin, 'H:i:s'); ?></p>
+    <p>Nautical Twilight Begins: <?php echo date_format($this->nautical_twilight_begin, 'H:i:s'); ?></p>
+    <p>Civil Twighlight Begins: <?php echo date_format($this->civil_twilight_begin, 'H:i:s'); ?></p>
+    <p>Sunrise: <?php echo date_format($this->sunrise, 'H:i:s'); ?></p>
     <?php
     $output = ob_get_clean();
     return $output;    
